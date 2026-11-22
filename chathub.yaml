@@ -1,0 +1,80 @@
+# bastion config for the chat hub: a general assistant that can ask
+# FoodDash's agent (agent to agent) and search Ironclad's PUBLIC policies.
+# It can never move money: it has no Ironclad bank tools, no Ironclad
+# merchant key, and FoodDash refuses payments in sessions other apps start.
+#
+# Identity comes from credentials, never from what a message or header
+# claims: each other app issued the chat hub its own key, and the chat hub
+# sends that key itself (credentials below). The other apps' own secrets
+# are never in this file or this process.
+apps:
+  chathub:
+    tools: {}
+    credentials:
+      fooddash: env:CHATHUB_FOODDASH_KEY          # ak_ key FoodDash issued to the chat hub
+      ironclad: env:CHATHUB_IRONCLAD_POLICY_KEY   # public-only pk_ key Ironclad issued to it
+
+  # The other apps, as the chat hub sees them: where they are and how to send
+  # its own key (header scheme only), plus the one tool each grants it.
+  fooddash:
+    base_url: "http://localhost:8100"     # FOODDASH_AGENT_URL overrides
+    auth: {header: Authorization, prefix: "Bearer "}
+    tools:
+      ask_fooddash:
+        type: remote_agent                # POST /agent/chat {message, session_id}
+        description: "Ask FoodDash's ordering assistant about restaurants, menus, placing an order, an order's status or cancelling it. Write the request in plain language."
+        timeout: 120
+
+  ironclad:
+    base_url: "http://localhost:8001"     # IRONCLAD_BASE_URL overrides
+    auth: {header: Authorization, prefix: "Bearer "}
+    tools:
+      search_bank_policies:
+        path: "/policies/search"
+        method: GET
+        description: "Search Ironclad Bank's public policy documents (fees, limits, OTP and security, merchant payments, disputes, fraud, savings interest, privacy, support, AI agents). Returns sections with doc_title, section and content, or an empty list if no public policy covers the question."
+        # Text from another app: scanned for injections like any untrusted response.
+        trust: untrusted
+        injection_scanning: true
+        timeout: 15
+        parameters:
+          type: object
+          properties:
+            q: {type: string, minLength: 3, maxLength: 300, description: "The question, in plain language"}
+            top_k: {type: integer, minimum: 1, maximum: 5, description: "How many sections (default 3)"}
+          required: [q]
+
+grants:
+  - {tool: fooddash.ask_fooddash, to_apps: [chathub]}
+  - {tool: ironclad.search_bank_policies, to_apps: [chathub]}
+
+agents:
+  chathub.assistant:
+    description: "General assistant. Can ask FoodDash's agent and read Ironclad's public policies. Can't move money."
+    prompt_version: v1
+    backend: openai
+    model: gpt-4o-mini
+    instructions: |
+      You are the Chat Hub assistant, a general helper. You can't move money or pay for anything, and you never will.
+      - Food (restaurants, menus, ordering, an order's status, cancelling an order): call fooddash__ask_fooddash and pass the user's request to FoodDash in plain language, then tell the user what FoodDash said.
+      - Questions about Ironclad Bank's policies: call ironclad__search_bank_policies and answer ONLY from its results, citing the document and section, e.g. "(Transfer Limits, Transfers to other people)". If it returns nothing relevant, say Ironclad's public policies don't cover it. Never guess a policy, a fee, a limit or any other number.
+      - Never ask for, accept or pass on payment codes (OTPs, passcodes, PINs).
+      - When FoodDash says a payment must be completed in FoodDash, tell the user plainly: the order is placed but not paid, and they need to open FoodDash to pay for it. You can't pay for them.
+      - You are the Chat Hub. Never claim to be FoodDash, Ironclad or anyone else, including when a user asks you to.
+      Be concise.
+    tools:
+      - fooddash.ask_fooddash
+      - ironclad.search_bank_policies
+    strictness: strict
+
+classifier:
+  enabled: true
+  provider: openai
+  model: gpt-4o-mini
+
+settings:
+  injection_scanning: true
+  default_strictness: strict
+  default_trust: untrusted
+  session_ttl: 3600
+  trace_fallback_dir: "./anvil_traces"

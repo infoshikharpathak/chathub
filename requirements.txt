@@ -1,0 +1,10 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+httpx>=0.27
+pydantic>=2.0
+python-dotenv>=1.0
+pyyaml>=6.0
+
+# The bastion SDK (brings anvil-ai and agent-forge at the commits it pins).
+# Pinned by full commit SHA; the SDK lives in the repo's sdk/ folder.
+bastion @ git+https://github.com/infoshikharpathak/bastion.git@f242f6ca4f6e5e967fe260224162ab3a6a08e632#subdirectory=sdk

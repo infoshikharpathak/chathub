@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Env files
+.env
+
+# Test / agent-service artifacts
+.pytest_cache/
+anvil_traces/
+agent_forge_traces.db
+anvil_forge_traces.jsonl
+bastion_traces.jsonl
+
+# Local run artifacts
+anvil_traces/
+bastion_traces.jsonl
+agent_forge_traces.db
+.env
