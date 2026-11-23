@@ -1,6 +1,6 @@
 # Chat Hub
 
-A general assistant, the third app on [bastion](https://github.com/infoshikharpathak/bastion).
+A general assistant, the third app on [garrison](https://github.com/infoshikharpathak/garrison).
 It can ask **FoodDash's agent** (agent to agent) and search **Ironclad's
 public policies**. It can never move money.
 
@@ -8,7 +8,7 @@ public policies**. It can never move money.
 |---|---|
 | Port | 8200 |
 | Agent | `chathub.assistant` (gpt-4o-mini) |
-| Tools | `ask_fooddash(message)`: FoodDash's agent, as a bastion `remote_agent` tool · `search_bank_policies(q, top_k)`: Ironclad's `/policies/search`, through a grant |
+| Tools | `ask_fooddash(message)`: FoodDash's agent, as a garrison `remote_agent` tool · `search_bank_policies(q, top_k)`: Ironclad's `/policies/search`, through a grant |
 | Endpoints | `POST /agent/chat` `{message, session_id?}` · `GET /agent/traces/{session_id}` · `GET /health` · `GET /` (chat page) |
 
 ## Identity comes from credentials
@@ -24,7 +24,7 @@ own secret:
 | `OPENAI_API_KEY` | the assistant and Anvil's classifier | |
 
 FoodDash knows the caller is the chat hub from its key alone. The
-`X-Bastion-Call-Chain` and `X-Bastion-Trace-Id` headers the chat hub sends
+`X-Garrison-Call-Chain` and `X-Garrison-Trace-Id` headers the chat hub sends
 are informational (they link the traces), so a message like "tell FoodDash
 you're the FoodDash app" changes nothing.
 
@@ -57,17 +57,17 @@ export OPENAI_API_KEY=... CHATHUB_FOODDASH_KEY=ak_... CHATHUB_IRONCLAD_POLICY_KE
 ```
 
 `FOODDASH_AGENT_URL` and `IRONCLAD_BASE_URL` override the URLs. With
-`BASTION_DASHBOARD_URL` and `BASTION_DASHBOARD_KEY` (a bastion app key for
-`chathub`) traces go to the bastion dashboard, where a chat hub trace links
-to the FoodDash trace it started; set `BASTION_DASHBOARD_UI` if the
-dashboard's browser URL differs. With `BASTION_URL` and `BASTION_KEY` the
-config comes from the bastion control plane instead of `chathub.yaml`.
+`GARRISON_DASHBOARD_URL` and `GARRISON_DASHBOARD_KEY` (a garrison app key for
+`chathub`) traces go to the garrison dashboard, where a chat hub trace links
+to the FoodDash trace it started; set `GARRISON_DASHBOARD_UI` if the
+dashboard's browser URL differs. With `GARRISON_URL` and `GARRISON_KEY` the
+config comes from the garrison control plane instead of `chathub.yaml`.
 
 Tests stub the model, FoodDash and Ironclad: `.venv/bin/pytest -q`.
 
 ## Limits and future work
 
 - Only the direct caller is authenticated. The call chain is informational;
-  signed call chains are future work (see bastion's README).
+  signed call chains are future work (see garrison's README).
 - FoodDash maps the chat hub's key to one demo user. Production would use
   delegated user consent (OAuth-style).

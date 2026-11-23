@@ -35,10 +35,9 @@ Thumbs.db
 anvil_traces/
 agent_forge_traces.db
 anvil_forge_traces.jsonl
-bastion_traces.jsonl
+*_traces.jsonl
 
 # Local run artifacts
 anvil_traces/
-bastion_traces.jsonl
 agent_forge_traces.db
 .env

@@ -1,4 +1,4 @@
-"""Chat Hub: a general assistant on the bastion SDK.
+"""Chat Hub: a general assistant on the garrison SDK.
 
 It can ask FoodDash's agent (agent to agent, with the key FoodDash issued
 to the chat hub) and search Ironclad's public policies (with the public-only
@@ -26,7 +26,8 @@ _forge_env = os.path.join(os.path.dirname(__file__), "../../agent-forge/.env")  
 if os.path.exists(_forge_env):
     load_dotenv(_forge_env)
 
-from bastion import Platform  # noqa: E402
+from garrison import Platform  # noqa: E402
+from garrison.compat import getenv  # noqa: E402  (GARRISON_*, else the pre-rename names)
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(name)s  %(message)s")
 logger = logging.getLogger("chathub")
@@ -40,15 +41,15 @@ _URL_OVERRIDES = {"fooddash": "FOODDASH_AGENT_URL", "ironclad": "IRONCLAD_BASE_U
 
 
 def build_platform(**platform_kwargs: Any) -> Platform:
-    """From the bastion control plane (BASTION_URL and BASTION_KEY) or the
-    local chathub.yaml. In library mode, BASTION_DASHBOARD_URL and
-    BASTION_DASHBOARD_KEY send traces to a bastion dashboard."""
-    url, key = os.getenv("BASTION_URL"), os.getenv("BASTION_KEY")
+    """From the garrison control plane (GARRISON_URL and GARRISON_KEY) or the
+    local chathub.yaml. In library mode, GARRISON_DASHBOARD_URL and
+    GARRISON_DASHBOARD_KEY send traces to a garrison dashboard."""
+    url, key = getenv("GARRISON_URL"), getenv("GARRISON_KEY")
     if url and key:
-        platform = Platform.from_service(url, key, refresh_interval=float(os.getenv("BASTION_REFRESH_SECONDS", "30")),
+        platform = Platform.from_service(url, key, refresh_interval=float(getenv("GARRISON_REFRESH_SECONDS", "30")),
                                          **platform_kwargs)
         if platform.app != APP:
-            raise RuntimeError(f"BASTION_KEY belongs to app {platform.app!r}, not {APP!r}.")
+            raise RuntimeError(f"GARRISON_KEY belongs to app {platform.app!r}, not {APP!r}.")
         return platform
     with open(CONFIG_PATH) as f:
         raw = yaml.safe_load(f)
@@ -57,8 +58,8 @@ def build_platform(**platform_kwargs: Any) -> Platform:
             raw["apps"][app]["base_url"] = os.environ[var].rstrip("/")
     if os.getenv("OPENAI_MODEL"):
         raw["agents"][AGENT_ID]["model"] = os.environ["OPENAI_MODEL"]
-    if os.getenv("BASTION_DASHBOARD_URL") and os.getenv("BASTION_DASHBOARD_KEY"):
-        raw["dashboard"] = {"url": os.environ["BASTION_DASHBOARD_URL"], "key": os.environ["BASTION_DASHBOARD_KEY"]}
+    if getenv("GARRISON_DASHBOARD_URL") and getenv("GARRISON_DASHBOARD_KEY"):
+        raw["dashboard"] = {"url": getenv("GARRISON_DASHBOARD_URL"), "key": getenv("GARRISON_DASHBOARD_KEY")}
     return Platform.from_config(raw, app=APP, **platform_kwargs)
 
 
@@ -130,7 +131,7 @@ def page():
 @app.get("/config")
 def page_config():
     """What the chat page needs to link traces (no secrets)."""
-    return {"dashboard_url": (os.getenv("BASTION_DASHBOARD_UI") or os.getenv("BASTION_DASHBOARD_URL") or "").rstrip("/")}
+    return {"dashboard_url": (getenv("GARRISON_DASHBOARD_UI") or getenv("GARRISON_DASHBOARD_URL") or "").rstrip("/")}
 
 
 @app.post("/agent/chat", response_model=ChatResponse)

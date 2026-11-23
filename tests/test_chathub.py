@@ -5,8 +5,8 @@ import json
 from pathlib import Path
 
 import yaml
-from bastion.a2a import CALL_CHAIN_HEADER, TRACE_ID_HEADER
-from bastion.config import load_config
+from garrison.a2a import CALL_CHAIN_HEADER, TRACE_ID_HEADER
+from garrison.config import load_config
 
 from .conftest import BANK_AGENT_KEY, HUB_FOODDASH_KEY, HUB_POLICY_KEY, INTERNAL
 

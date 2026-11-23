@@ -1,4 +1,4 @@
-# bastion config for the chat hub: a general assistant that can ask
+# garrison config for the chat hub: a general assistant that can ask
 # FoodDash's agent (agent to agent) and search Ironclad's PUBLIC policies.
 # It can never move money: it has no Ironclad bank tools, no Ironclad
 # merchant key, and FoodDash refuses payments in sessions other apps start.

@@ -1,4 +1,4 @@
-"""Stubbed model, FoodDash agent and Ironclad policy search. bastion, Anvil
+"""Stubbed model, FoodDash agent and Ironclad policy search. garrison, Anvil
 and Agent Forge are real."""
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import httpx
 import pytest
-from bastion.classifier import is_classifier_request
+from garrison.classifier import is_classifier_request
 from openai.types.chat import ChatCompletion
 
 HUB_FOODDASH_KEY = "ak_test_issued_by_fooddash_to_chathub"
@@ -21,8 +21,10 @@ os.environ.setdefault("OPENAI_API_KEY", "dummy-key-for-tests")
 os.environ["CHATHUB_FOODDASH_KEY"] = HUB_FOODDASH_KEY
 os.environ["CHATHUB_IRONCLAD_POLICY_KEY"] = HUB_POLICY_KEY
 os.environ["IRONCLAD_POLICY_KEY"] = BANK_AGENT_KEY
-for var in ("OPENAI_MODEL", "BASTION_URL", "BASTION_KEY", "FOODDASH_AGENT_URL", "IRONCLAD_BASE_URL",
-            "BASTION_DASHBOARD_URL", "BASTION_DASHBOARD_KEY"):
+for var in ("OPENAI_MODEL", "GARRISON_URL", "GARRISON_KEY", "FOODDASH_AGENT_URL", "IRONCLAD_BASE_URL",
+            "GARRISON_DASHBOARD_URL", "GARRISON_DASHBOARD_KEY",
+            # pre-rename names, which garrison still reads as a fallback
+            "BASTION_URL", "BASTION_KEY", "BASTION_DASHBOARD_URL", "BASTION_DASHBOARD_KEY"):
     os.environ.pop(var, None)
 
 
